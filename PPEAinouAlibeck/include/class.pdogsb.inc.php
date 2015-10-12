@@ -271,6 +271,26 @@ class PdoGsb{
 		}
 		return $lesMois;
 	}
+        
+        public function lesMois(){
+		$req = "select fichefrais.mois as mois from  fichefrais where fichefrais.idEtat ='CR' 
+		order by fichefrais.mois desc ";
+		$res = PdoGsb::$monPdo->query($req);
+		$lesMois =array();
+		$laLigne = $res->fetch();
+		while($laLigne != null)	{
+			$mois = $laLigne['mois'];
+			$numAnnee =substr( $mois,0,4);
+			$numMois =substr( $mois,4,2);
+			$lesMois["$mois"]=array(
+		     "mois"=>"$mois",
+		    "numAnnee"  => "$numAnnee",
+			"numMois"  => "$numMois"
+             );
+			$laLigne = $res->fetch(); 		
+		}
+		return $lesMois;
+	}
 /**
  * Retourne les informations d'une fiche de frais d'un utilisateur pour un mois donné
  
@@ -302,6 +322,13 @@ class PdoGsb{
         
         public function getLesVisiteurs(){
 		$req = "select * from utilisateur where type_utilisateur=0 order by utilisateur.nom";
+		$res = PdoGsb::$monPdo->query($req);
+		$lesVisiteurs = $res->fetchAll();
+		return $lesVisiteurs;
+	}
+        
+        public function lesVisiteurs($mois){
+		$req = "select nom as nom, prenom as prenom, id as id from utilisateur U join fichefrais F on U.id =F.idVisiteur where F.mois = $mois ;";
 		$res = PdoGsb::$monPdo->query($req);
 		$lesVisiteurs = $res->fetchAll();
 		return $lesVisiteurs;
